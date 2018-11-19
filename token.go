@@ -90,8 +90,8 @@ func Parse(tokenString string, keyFunc Keyfunc, r *http.Request) (*Token, error)
 	return new(Parser).Parse(tokenString, keyFunc, r)
 }
 
-func ParseWithClaims(tokenString string, claims Claims, keyFunc Keyfunc) (*Token, error) {
-	return new(Parser).ParseWithClaims(tokenString, claims, keyFunc)
+func ParseWithClaims(tokenString string, claims Claims, keyFunc Keyfunc, r *http.Request) (*Token, error) {
+	return new(Parser).ParseWithClaims(tokenString, claims, keyFunc, r)
 }
 
 // Encode JWT specific base64url encoding with padding stripped
