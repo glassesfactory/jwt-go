@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 )
 
@@ -16,11 +17,11 @@ type Parser struct {
 // Parse, validate, and return a token.
 // keyFunc will receive the parsed token and should return the key for validating.
 // If everything is kosher, err will be nil
-func (p *Parser) Parse(tokenString string, keyFunc Keyfunc) (*Token, error) {
-	return p.ParseWithClaims(tokenString, MapClaims{}, keyFunc)
+func (p *Parser) Parse(tokenString string, keyFunc Keyfunc, r *http.Request) (*Token, error) {
+	return p.ParseWithClaims(tokenString, MapClaims{}, keyFunc, r)
 }
 
-func (p *Parser) ParseWithClaims(tokenString string, claims Claims, keyFunc Keyfunc) (*Token, error) {
+func (p *Parser) ParseWithClaims(tokenString string, claims Claims, keyFunc Keyfunc, r *http.Request) (*Token, error) {
 	token, parts, err := p.ParseUnverified(tokenString, claims)
 	if err != nil {
 		return token, err
@@ -48,7 +49,7 @@ func (p *Parser) ParseWithClaims(tokenString string, claims Claims, keyFunc Keyf
 		// keyFunc was not provided.  short circuiting validation
 		return token, NewValidationError("no Keyfunc was provided.", ValidationErrorUnverifiable)
 	}
-	if key, err = keyFunc(token); err != nil {
+	if key, err = keyFunc(token, r); err != nil {
 		// keyFunc returned an error
 		if ve, ok := err.(*ValidationError); ok {
 			return token, ve
